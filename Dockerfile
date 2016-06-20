@@ -16,12 +16,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /home/
 
-COPY scripts/install.sh /tmp/install.sh
-RUN chmod +x /tmp/install.sh
-RUN . /tmp/install.sh
+COPY scripts/* /tmp/
+RUN chmod +x /tmp/*.sh
+RUN . /tmp/install_s3fs.sh
 
 COPY config/fuse.conf /etc/fuse.conf
-COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY config/supervisor/*.conf /etc/supervisor/conf.d/
 
 RUN mkdir scripts
 COPY scripts/runS3fs.sh scripts/runS3fs.sh
