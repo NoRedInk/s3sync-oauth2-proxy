@@ -21,7 +21,7 @@ RUN chmod +x /tmp/*.sh
 RUN . /tmp/install_s3fs.sh
 
 ENV OAUTH2_PROXY_REPO bitly/oauth2_proxy
-ENV OAUTH2_PROXY_COMMIT 42f1651ba5ab411e3216bd46f3c90bab153a2f13
+ENV OAUTH2_PROXY_COMMIT a9c55bd6d1caeaa7ba20236b2e85129c8219b865
 RUN . /tmp/install_oauth2_proxy.sh
 
 COPY config/fuse.conf /etc/fuse.conf
