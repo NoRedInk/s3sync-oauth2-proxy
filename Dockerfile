@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /home/
 
+ENV S3FS_TAG v1.80
 COPY scripts/* /tmp/
 RUN chmod +x /tmp/*.sh
 RUN . /tmp/install_s3fs.sh
