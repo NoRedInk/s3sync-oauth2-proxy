@@ -1,1 +1,0 @@
-docker run --privileged --cap-add SYS_ADMIN --device /dev/fuse -d -e "BUCKETNAME=$BUCKETNAME" -e "AWSACCESSKEYID=$AWSACCESSKEYID" -e "AWSSECRETACCESSKEY=$AWSSECRETACCESSKEY" hiveoss/s3fs $@
