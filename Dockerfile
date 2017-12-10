@@ -27,8 +27,11 @@ RUN . /tmp/install_oauth2_proxy.sh
 RUN mkdir -p /etc/supervisor/config.d/
 COPY config/supervisor/*.conf /etc/supervisor/config.d/
 COPY config/supervisord.conf /etc/supervisor/
+COPY config/crontab crontab
+RUN crontab crontab
 
 RUN mkdir scripts shared
+COPY scripts/run_s3sync.py scripts/run_s3sync.py
 RUN chmod +x scripts/*
 
 CMD ["/usr/bin/supervisord"]
