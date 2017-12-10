@@ -1,35 +1,34 @@
-FROM ubuntu:trusty
-MAINTAINER eterna2 <eterna2@hotmail.com>
+FROM golang:1.9-alpine
 
-RUN apt-get update && apt-get install -y \
-  automake \
-  autotools-dev \
-  g++ \
-  git \
-  libcurl4-gnutls-dev \
-  libfuse-dev \
-  libssl-dev \
-  libxml2-dev \
-  make \
-  pkg-config \
-  supervisor
+ENV SUPERVISOR_VERSION=3.3.3
+
+RUN apk update && apk add -u \
+    git \
+    python \
+    py-pip \
+    bash \
+    openssl \
+    tar \
+    wget \
+    ca-certificates
+
+RUN pip install --upgrade pip
+RUN pip install --upgrade awscli pid supervisor==$SUPERVISOR_VERSION
 
 WORKDIR /home/
 
-ENV S3FS_TAG v1.80
-COPY scripts/* /tmp/
-RUN chmod +x /tmp/*.sh
-RUN . /tmp/install_s3fs.sh
+COPY scripts/install_oauth2_proxy.sh /tmp/
+RUN chmod +x /tmp/install_oauth2_proxy.sh
 
 ENV OAUTH2_PROXY_REPO bitly/oauth2_proxy
 ENV OAUTH2_PROXY_COMMIT a9c55bd6d1caeaa7ba20236b2e85129c8219b865
 RUN . /tmp/install_oauth2_proxy.sh
 
-COPY config/fuse.conf /etc/fuse.conf
-COPY config/supervisor/*.conf /etc/supervisor/conf.d/
+RUN mkdir -p /etc/supervisor/config.d/
+COPY config/supervisor/*.conf /etc/supervisor/config.d/
+COPY config/supervisord.conf /etc/supervisor/
 
-RUN mkdir scripts
-COPY scripts/runS3fs.sh scripts/runS3fs.sh
+RUN mkdir scripts shared
 RUN chmod +x scripts/*
 
 CMD ["/usr/bin/supervisord"]
