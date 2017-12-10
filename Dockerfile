@@ -21,7 +21,7 @@ COPY scripts/install_oauth2_proxy.sh /tmp/
 RUN chmod +x /tmp/install_oauth2_proxy.sh
 
 ENV OAUTH2_PROXY_REPO bitly/oauth2_proxy
-ENV OAUTH2_PROXY_COMMIT a9c55bd6d1caeaa7ba20236b2e85129c8219b865
+ENV OAUTH2_PROXY_COMMIT d75f626cdd664fa75552717c4abd3018877d3b2c
 RUN . /tmp/install_oauth2_proxy.sh
 
 RUN mkdir -p /etc/supervisor/config.d/
