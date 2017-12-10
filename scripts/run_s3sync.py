@@ -19,5 +19,5 @@ def sync_bucket_to_local(bucket_name, local_dir):
 
 if __name__ == '__main__':
     bucket_name = os.environ['BUCKETNAME']
-    local_dir = '/home/shared/s3'
+    local_dir = os.environ['S3_LOCAL_DIR']
     sync_bucket_to_local(bucket_name, local_dir)

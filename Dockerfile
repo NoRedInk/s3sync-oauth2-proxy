@@ -1,6 +1,7 @@
 FROM golang:1.9-alpine
 
 ENV SUPERVISOR_VERSION=3.3.3
+ENV S3_LOCAL_DIR=/home/shared/s3
 
 RUN apk update && apk add -u \
     git \
@@ -30,8 +31,10 @@ COPY config/supervisord.conf /etc/supervisor/
 COPY config/crontab crontab
 RUN crontab crontab
 
-RUN mkdir scripts shared
+RUN mkdir scripts
 COPY scripts/run_s3sync.py scripts/run_s3sync.py
 RUN chmod +x scripts/*
+
+RUN mkdir -p "$S3_LOCAL_DIR"
 
 CMD ["/usr/bin/supervisord"]
