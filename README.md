@@ -1,36 +1,45 @@
-# s3fs
-Ubuntu Trusty with [s3fs-fuse](https://github.com/s3fs-fuse/s3fs-fuse) and [supervisor](http://supervisord.org) as base image for other app containers.
+# s3 sync + oauth2_proxy
+Modern-day `UserDir public_html` with authentication.
 
-## Quick Start
+The Docker image is based on Alpine with periodic S3 sync and
+[oauth2_proxy](https://github.com/bitly/oauth2_proxy) managed by [supervisor](http://supervisord.org).
+
+S3 sync is done through awscli's `s3 sync` command and is run once per minute.
+
+## Example
+
 ```
-docker run --privileged --cap-add SYS_ADMIN --device /dev/fuse -d -e "BUCKETNAME=$BUCKETNAME" -e "AWSACCESSKEYID=$AWSACCESSKEYID" -e "AWSSECRETACCESSKEY=$AWSSECRETACCESSKEY" hiveoss/s3fs
+docker run \
+  -e BUCKETNAME=.. \
+  -e AWS_ACCESS_KEY_ID=.. \
+  -e AWS_SECRET_ACCESS_KEY=.. \
+  -e OAUTH2_PROXY_CLIENT_ID=.. \
+  -e OAUTH2_PROXY_CLIENT_SECRET=.. \
+  -e OAUTH2_PROXY_ARGS="-provider=github -github-org=MyOrg -email-domain=* -cookie-secret=.. -skip-auth-regex=healthcheck" \
+  -p 8080:80 \
+  --rm \
+  -it s3sync-oauth2-proxy:latest
 ```
 
 ## Configurations
 
-#### Environment variables
-The environment variables are used to indicate the bucket to mount and to provide credentials to access the bucket.
-`$BUCKETNAME` - the AWS bucket name
-`$AWSACCESSKEYID` - the AWS key id
-`$AWSSECRETACCESSKEY` - the AWS secret token
+### Environment variables
 
-#### s3fs-fuse
-You can overwrite `scripts/runS3fs.sh` to change the parameters for the s3fs.
-```
-mkdir -p /home/shared/s3 && 
-mkdir -p /tmp && 
-s3fs $BUCKETNAME /home/shared/s3 -o use_cache=/tmp -o allow_other -o umask=0002 -o use_rrs -f
-``` 
+For S3:
 
-#### supervisor
-You can overwrite `config/supervisord.conf` to change the parameters for the supervisord. But usually you do not need to unless you need to start additional processes. Noted that daemon is off by default for supervisor.
+- `$BUCKETNAME` - the AWS bucket name to sync
+- `$AWS_ACCESS_KEY_ID` - the AWS key id - these can be replaced by instance-role based access
+- `$AWS_SECRET_ACCESS_KEY` - the AWS secret key
 
-#### Default S3 folder
-The default s3 bucket is mounted at `/home/shared/s3`.
+For oauth2_proxy:
 
-## As Base Image
-```
-FROM hiveoss/s3fs
+- `OAUTH2_PROXY_ARGS` - arguments to pass to oauth2_proxy. by default, `-http-address` and `-upstream`
+  are set to listen to `0.0.0.0:80` and proxy to the synced s3 folder, respectively.
+- other environment variables listed in [oauth2_proxy's documentation](https://github.com/bitly/oauth2_proxy#environment-variables)
 
-CMD ["/usr/bin/supervisord"]
-```
+### supervisor
+You can overwrite `config/supervisord.conf` to change the parameters for supervisord.
+But usually you do not need to unless you need to start additional processes. Noted that daemon is off by default for supervisor.
+
+### Default S3 folder
+The s3 bucket is synced to `/home/shared/s3`.
